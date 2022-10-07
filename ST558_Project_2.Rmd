@@ -1,6 +1,6 @@
 ---
 title: "ST558 Project 2  Interacting with APIs: Example with the Financial API"
-author: "Xi Zeng"
+author: "Xi Zeng, Madhur Jiwtani"
 date: "2022-10-06"
 output: github_document
 ---
@@ -37,12 +37,7 @@ Mydata$content
 
 
 
-## Including Plots
-
-You can also embed plots, for example:
-
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+This is the code to render the README file.
 ```{r, eval = FALSE}
 library(rmarkdown)
 rmarkdown::render(input = "ST558_update_check.Rmd",
