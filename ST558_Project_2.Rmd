@@ -45,13 +45,6 @@ ConstructURL <- function(stocksTicker, date, adjusted){
   URL <- paste(BasicURL,newstocksTicker,)
 } 
 
-<<<<<<< HEAD
-Mydata <- GET("https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2020-06-01/2020-06-17?apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
-str(Mydata)
-
-  
-=======
->>>>>>> 2bb0cffd3a17a7d6c03edec175574c2e0c737f53
 ```
 
 Function 2 : Interacting with Ticker Endpoint
@@ -67,9 +60,11 @@ parsed$results
 
 ```
 
-Function 3 : Intereacting with Dividend Endpoint
+Function 3 : Interacting with Dividend Endpoint
 ```{r}
-
+func3<- GET("https://api.polygon.io/v3/reference/dividends?&limit=1000&apiKey=Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh")
+dividend<- fromJSON(rawToChar(func3$content))
+dividend$results
 ```
 This is the code to render the README file.
 ```{r, eval = FALSE}
