@@ -32,11 +32,27 @@ library(jsonlite)
 
 Mydata <- GET("https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2020-06-01/2020-06-17?apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
 str(Mydata)
-Mydata$content
+
+  
 ```
 
+Function 2 : Interacting with Ticker Endpoint
+```{r}
+func2 <- GET("https://api.polygon.io/v3/reference/tickers?active=true&sort=ticker&order=asc&limit=1000&apiKey=Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh")
+
+library(jsonlite)
+
+parsed <- fromJSON(rawToChar(func2$content))
+parsed$results$currency_name<-toupper(parsed$results$currency_name)
+parsed$results
 
 
+```
+
+Function 3 : Intereacting with Dividend Endpoint
+```{r}
+
+```
 This is the code to render the README file.
 ```{r, eval = FALSE}
 library(rmarkdown)
