@@ -23,16 +23,28 @@ Here is the part for the self-defined functions to interact with the Financial A
 
 `Function1`  
 
-This function is for interacting with the `Daily Open/Close` endpoint for the Financial API.  
+This function is for interacting with the `Daily Open/Close` endpoint for the Financial API to acquire open,close and afterhours prices of a stock symbol on a certain date.  
 
 ```{r}
 library(tidyverse)
 library(httr)
 library(jsonlite)
+#Example for getting the data we want.
+Mydata <- GET("https://api.polygon.io/v1/open-close/AAPL/2020-10-14?adjusted=true&apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
+parsed <- fromJSON(rawToChar(Mydata$content))
+#Construct API
 
-Mydata <- GET("https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2020-06-01/2020-06-17?apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
-str(Mydata)
-Mydata$content
+ConstructURL <- function(stocksTicker, date, adjusted){
+  BasicURL <- "https://api.polygon.io/v1/open-close"
+  #IF there is blank in the stocksTicker, do this to transform
+  newstocksTicker <- paste(toupper(substr(strsplit(stocksTicker, " ")[[1]],1,1)),collapse = "")
+  #If no blank exists, no need to transform
+  ifelse()
+  apikey <- "pxkABpfvwGyIl55tOWtNxricS6IwKFYH"
+  newdate <- format(as.Date(nzd$date, format = "%d/%m/%Y"), "%Y-%m-%d")
+  URL <- paste(BasicURL,newstocksTicker,)
+} 
+
 ```
 
 
