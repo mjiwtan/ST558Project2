@@ -34,16 +34,31 @@ Mydata <- GET("https://api.polygon.io/v1/open-close/AAPL/2020-10-14?adjusted=tru
 parsed <- fromJSON(rawToChar(Mydata$content))
 #Construct API
 
-ConstructURL <- function(stocksTicker, date, adjusted){
+
+
+#StocksTicker may not be abbreviation
+
+ConstructURL <- function(stocksTicker, date, adjusted = "true"){
   BasicURL <- "https://api.polygon.io/v1/open-close"
-  #IF there is blank in the stocksTicker, do this to transform
-  newstocksTicker <- paste(toupper(substr(strsplit(stocksTicker, " ")[[1]],1,1)),collapse = "")
-  #If no blank exists, no need to transform
-  ifelse()
   apikey <- "pxkABpfvwGyIl55tOWtNxricS6IwKFYH"
-  newdate <- format(as.Date(nzd$date, format = "%d/%m/%Y"), "%Y-%m-%d")
-  URL <- paste(BasicURL,newstocksTicker,)
-} 
+  #Transform the stocksTicker to the upper 
+  newstocksTicker <- toupper(stocksTicker)
+  #newstocksTicker <- paste(toupper(substr(strsplit(stocksTicker, " ")[[1]],1,1)),collapse = "")
+  newadjusted <- tolower(adjusted)
+  #Transform date to YY-MM-DD format
+  #newdata <- as.POSIXct(date,format = )
+  date_format <- c("%m/%d/%Y","%m-%d-%Y","%Y/%m/%d","%Y-%m-%d")
+  newdate <- format(as.Date(date, tryFormats = date_format), "%Y-%m-%d")
+  newURL <- paste0(BasicURL,"/",newstocksTicker,"/",newdate,"?","adjusted=",newadjusted,"&apiKey=",apikey)
+  data <- GET(newURL)
+  parsed <-fromJSON(rawToChar(data$content)) 
+  return(parsed)
+}
+ConstructURL(stocksTicker = "AApl",date = "2021/10/29")
+
+
+
+
 
 ```
 
@@ -53,6 +68,7 @@ library(tidyverse)
 library(httr)
 library(jsonlite)
 library(plyr)
+
 query<-function(endpoints,type_of_market,limits,stocktype,abbreviation){
   baseUrl="https://api.polygon.io/v3/reference/"
 endpoint=endpoints
