@@ -49,14 +49,35 @@ ConstructURL <- function(stocksTicker, date, adjusted){
 
 Function 2 : Interacting with Ticker Endpoint
 ```{r}
-func2 <- GET("https://api.polygon.io/v3/reference/tickers?active=true&sort=ticker&order=asc&limit=1000&apiKey=Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh")
-
+library(tidyverse)
+library(httr)
 library(jsonlite)
+library(plyr)
+query<-function(endpoints,type_of_market,limits,stocktype,abbreviation){
+  baseUrl="https://api.polygon.io/v3/reference/"
+endpoint=endpoints
+api_key="Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh"
+market=type_of_market
+limit=limits
+targetUrl<-paste(baseUrl, endpoint, "?", "market", "=", market,"&limit=",limit,"&apiKey=",api_key,sep="")
 
-parsed <- fromJSON(rawToChar(func2$content))
-parsed$results$currency_name<-toupper(parsed$results$currency_name)
-parsed$results
+tickerData <- GET(targetUrl)
+parsedTickerData <- fromJSON(rawToChar(tickerData$content))
+parsedTickerData$results$currency_name<-toupper(parsedTickerData$results$currency_name)
 
+  
+if (!abbreviation)
+    {
+    tickerDetail<-GET("https://api.polygon.io/v3/reference/tickers/types?asset_class=stocks&apiKey=Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh")
+  parsedTickerDetail <- fromJSON(rawToChar(tickerDetail$content))
+  parsedTickerData$results$type <- mapvalues(parsedTickerData$results$type, from=parsedTickerDetail$results$code,to=parsedTickerDetail$results$description)
+  }
+
+answer<- parsedTickerData$results %>%filter(parsedTickerData$results$type==stocktype)
+return(answer)
+ 
+}
+query("tickers","stocks",1000,"Common Stock",FALSE)
 
 ```
 
