@@ -23,7 +23,7 @@ Here is the part for the self-defined functions to interact with the Financial A
 
 `ConstructURL`  
 
-This function is for interacting with the `Daily Open/Close` endpoint for the Financial API to acquire open,close and afterhours prices of a stock symbol on a certain date. For this function, user can specify the stocksTicker; lowercase, uppercase and camelcase.etc are accepted). Also, for date, we accept following formats:  
+This function is for interacting with the `Daily Open/Close` endpoint for the Financial API to acquire open,close and after hours prices of a stock symbol on a certain date. For this function, user can specify the stocksTicker; lowercase, uppercase and camelcase.etc are accepted). Also, for date, we accept following formats:  
 +`%m/%d/%Y`  
 +`%m-%d-%Y`  
 +`%Y/%m/%d`  
@@ -71,18 +71,17 @@ ConstructURL(stocksTicker = "AApl",date = "2021/10/29")
 
 ```
 
-`query`   
+`Market`   
 
-This function is for interacting with the Tickers endpoint. It can be used to query all ticker symbols which are supported by this Financial API. This currently includes Stocks/Equities, Crypto, and Forex.  
+This function is for interacting with the Tickers endpoint. It can be used to query all the different type of market like "Stocks", "Crypto", "FX" and "OTC" which are supported by this Financial API.  
 
-Function 2 : Interacting with Ticker Endpoint
 ```{r, echo=TRUE, eval=TRUE}
 library(tidyverse)
 library(httr)
 library(jsonlite)
 
-query<-function(endpoints,type_of_market,limits,stocktype,abbreviation){
-  baseUrl="https://api.polygon.io/v3/reference/"
+Market<-function(endpoints,type_of_market,limits){
+baseUrl="https://api.polygon.io/v3/reference/"
 endpoint=endpoints
 api_key="Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh"
 market=type_of_market
@@ -92,23 +91,43 @@ targetUrl<-paste(baseUrl, endpoint, "?", "market", "=", market,"&limit=",limit,"
 tickerData <- GET(targetUrl)
 parsedTickerData <- fromJSON(rawToChar(tickerData$content))
 parsedTickerData$results$currency_name<-toupper(parsedTickerData$results$currency_name)
+return(parsedTickerData$results)
 
-  
-if (!abbreviation)
-    {
-    tickerDetail<-GET("https://api.polygon.io/v3/reference/tickers/types?asset_class=stocks&apiKey=Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh")
-  parsedTickerDetail <- fromJSON(rawToChar(tickerDetail$content))
-  parsedTickerData$results$type <- mapvalues(parsedTickerData$results$type, from=parsedTickerDetail$results$code,to=parsedTickerDetail$results$description)
-  }
-
-answer<- parsedTickerData$results %>%filter(parsedTickerData$results$type==stocktype)
-return(answer)
- 
 }
-query("tickers","stocks",1000,"Common Stock",FALSE)
+Market("tickers","fx",1000)
 
 ```
 
+`Type_of_stock`
+
+This function is for interacting with the Tickers endpoint. It will help the user to get a set of stocks and their information according to the type of stock. The user gets the flexibility to either enter the abbreviation or the full string of the type of stock. User can also specify the maximum number of stocks they want to see.
+
+```{r}
+Type_of_Stock<-function(endpoints,type_of_stock,limits,abbreviation){
+  if (!abbreviation)
+    {
+    tickerDetail<-GET("https://api.polygon.io/v3/reference/tickers/types?asset_class=stocks&apiKey=Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh")
+  parsedTickerDetail <- fromJSON(rawToChar(tickerDetail$content))
+  result <- as_tibble(parsedTickerDetail$results)
+  result <- result %>% filter(description == type_of_stock)
+  type=as.character(result[,c("code")])
+  }
+  else{
+    type=type_of_stock
+  }
+baseUrl="https://api.polygon.io/v3/reference/"
+endpoint=endpoints
+api_key="Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh"
+limit=limits
+targetUrl<-paste(baseUrl, endpoint, "?", "type", "=", type,"&limit=",limit,"&apiKey=",api_key,sep="")
+
+tickerData <- GET(targetUrl)
+parsedTickerData <- fromJSON(rawToChar(tickerData$content))
+parsedTickerData$results$currency_name<-toupper(parsedTickerData$results$currency_name)
+return(parsedTickerData$results)
+}
+Type_of_Stock("tickers","Common Stock",1000,FALSE)  
+```
 
 `func3`  
 
@@ -122,7 +141,7 @@ dividend<- fromJSON(rawToChar(func3$content))
 dividend$results
 ```
 
-Function Call for exploratory data analysis. In this part, I pulled the open,close and afterhours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
+Function Call for exploratory data analysis. In this part, I pulled the open,close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
 
 
 ```{r}
