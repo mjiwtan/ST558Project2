@@ -141,7 +141,12 @@ dividend<- fromJSON(rawToChar(func3$content))
 dividend$results
 ```
 
-Function Call for exploratory data analysis. In this part, I pulled the open,close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
+
+# Exploratory Data Analysis  
+
+## Data query
+
+Below is the part of function call for exploratory data analysis. In this part, I pulled the open,close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
 
 
 ```{r}
@@ -177,6 +182,62 @@ for (i in stockSticker_call){
 #Delete the first row and keep what we need
 data_pull = data_pull[-1, ]
 ```
+
+
+## Data Manipulation  
+
+Below is part for create new variables. Here, I create a new variable change that records the change price of the stockSticker from open time to close time. Also a new categorical variable 'summary'is created, it indicates if the stock price rises or declines.If the `change` variable is greater than 0, indicates the stockprice rises at that specific date, vice versa.If `change` = 0, indicates the stock price remain the same for that day.
+
+```{r echo=TRUE, eval=TRUE}
+data_pull <- tibble(data_pull)
+
+#Create a new variable change as well as a categorical variable summary 
+newdata <- data_pull %>% mutate(change = as.numeric(close) - as.numeric(open),
+                                summary = ifelse(change > 0, "rise",
+                                                 ifelse(change < 0, "decline", "same")))
+newdata
+```
+
+This part is for creating numerical summaries for some quantitative variables at each setting of the categorical variables  .
+
+```{r echo=TRUE,eval=TRUE}
+#In this part, the mean volume for each stockSticker is summarised
+ a <- data_pull %>%
+        group_by(symbol)%>%
+         summarise(mean_volume = mean(as.numeric(volume)))
+```
+
+In this part, the above data with new variables created is utilized to create contigency table. The table displays the frequency of the stock price status for each stock sticker.
+
+```{r echo=TRUE,eval=TRUE}
+table(newdata$summary,newdata$symbol)
+```
+
+According to the table generated, in the specific time period(Includes the week of 10/11/2021 and the week of 10/18/2021), the stock price for AAL declines for 7 days and rises for 3 days. The stock price for AAPL declines for 3 days and rises for 7 days. The stock price for AXP declines for 4 days and rises for 6 days.  
+
+## Graphs
+
+In this part, we are going to generate multiple graphs for exploratory analysis of the data. And each graph will contains the interpretation for it below the graph.
+
+### Barplot
+
+```{r, echo=TRUE, eval=TRUE}
+newdata
+g <- ggplot(data = newdata, aes(x = summary))
+g + geom_bar(aes(fill = symbol), position = "dodge")+
+  labs(x = "Summary of the stock Price", fill = "Stock Sticker")
+
+```
+
+Above is the barplot for summarising the `summary` variable in the dataset, it shows the frequency count for rise and decline of each stock sticker.It seems that AAPL has a better stock performance at this time period, the stock price of AAL seems to be declining most of the time.  
+
+### Histogram
+```{r, echo=TRUE, eval=TRUE}
+newdata
+ggplot(newdata,aes(x = as.numeric(afterHours)))+
+  geom_histogram()
+```
+
 
 
 This is the code to render the README file.
