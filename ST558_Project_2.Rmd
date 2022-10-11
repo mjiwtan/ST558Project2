@@ -242,7 +242,8 @@ ggplot(newdata,aes(x = as.numeric(afterHours),fill = symbol))+
   
 According to the histogram above, the after-hour stock price for AAL is most around 19 to 20.5, and the after-hour stock price for AAPL is most around 140 to 150, the after-hour stock price for AXP is most around 165-187.5 for the two weeks of time, shows a relative large price change comparing to other two stock sticker.  
 
-### Boxplot
+### Boxplot  
+
 ```{r, echo=TRUE, eval=TRUE}
 g <- ggplot(newdata,aes(symbol,change))
 g + geom_boxplot(fill = "orange")+
@@ -253,9 +254,30 @@ g + geom_boxplot(fill = "orange")+
 According to the boxplot above, the stock price change is more stable for AAL, the price change for AXP shows bigger variance. Also, it seems that the mean value for stock price change for AAPL and AXP is bigger than 0, meaning that in the two-week period, the stock price for AAPL and AXP rises comparing to 10/11/2021.  
 
 ### Scatterplot
+```{r echo=TRUE, eval=TRUE}
+#newdata
+g <- ggplot(newdata, aes(x = from,  y = as.numeric(close), color = symbol))
+g + geom_point()+labs(x = "Date", y = "Close price ", color ="Stock Sticker")+
+  ggtitle("Scatterplot for stock price change in two-week period") +
+  theme(axis.text.x = element_text(angle = 90))
 
+```
 
-### 
+According to the boxplot above, AAL has lowest stock price, then AAPL, and AXP have the largest closing price. Also, AXP and AAPL shows a slightly upward change in the scatter plot.  
+
+### Extra boxplot  
+
+```{r, echo=TRUE, eval=TRUE}
+g <- ggplot(newdata,aes(symbol,as.numeric(volume)))
+g + geom_boxplot(fill = "green")+ geom_point(aes(color = symbol),position = "jitter") +
+  labs(x = "Stock Stickers", y = "Volume", color = "Stock Sticker")+
+  ggtitle("Figure for volume for specific stock sticker")
+  
+
+```
+  
+According to the boxplot above, the close price 
+
 
 This is the code to render the README file.
 ```{r, eval = FALSE}
