@@ -21,23 +21,24 @@ To use the functions for interacting with the Financial API, here are some packa
 # API Interaction Functions  
 Here is the part for the self-defined functions to interact with the Financial API, as well as some helper functions.  
 
-`Function1`  
+`ConstructURL`  
 
-This function is for interacting with the `Daily Open/Close` endpoint for the Financial API to acquire open,close and afterhours prices of a stock symbol on a certain date.  
+This function is for interacting with the `Daily Open/Close` endpoint for the Financial API to acquire open,close and afterhours prices of a stock symbol on a certain date. For this function, user can specify the stocksTicker; lowercase, uppercase and camelcase.etc are accepted). Also, for date, we accept following formats:  
++`%m/%d/%Y`  
++`%m-%d-%Y`  
++`%Y/%m/%d`  
++`%Y-%m-%d`  
+For the `adjusted`, it means whether or not the results are adjusted for splits. Here, the default will be the results are adjusted, but user can self define it as well.  
 
-```{r}
+```{r, eval=TRUE,echo=TRUE}
 library(tidyverse)
 library(httr)
 library(jsonlite)
 #Example for getting the data we want.
 Mydata <- GET("https://api.polygon.io/v1/open-close/AAPL/2020-10-14?adjusted=true&apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
 parsed <- fromJSON(rawToChar(Mydata$content))
+
 #Construct API
-
-
-
-#StocksTicker may not be abbreviation
-
 ConstructURL <- function(stocksTicker, date, adjusted = "true"){
   BasicURL <- "https://api.polygon.io/v1/open-close"
   apikey <- "pxkABpfvwGyIl55tOWtNxricS6IwKFYH"
@@ -45,29 +46,38 @@ ConstructURL <- function(stocksTicker, date, adjusted = "true"){
   newstocksTicker <- toupper(stocksTicker)
   #newstocksTicker <- paste(toupper(substr(strsplit(stocksTicker, " ")[[1]],1,1)),collapse = "")
   newadjusted <- tolower(adjusted)
+  
   #Transform date to YY-MM-DD format
-  #newdata <- as.POSIXct(date,format = )
   date_format <- c("%m/%d/%Y","%m-%d-%Y","%Y/%m/%d","%Y-%m-%d")
   newdate <- format(as.Date(date, tryFormats = date_format), "%Y-%m-%d")
+  
+  #Get the new URL for requiring data
   newURL <- paste0(BasicURL,"/",newstocksTicker,"/",newdate,"?","adjusted=",newadjusted,"&apiKey=",apikey)
+  
+  #Require data with functions in httr package
   data <- GET(newURL)
-  parsed <-fromJSON(rawToChar(data$content)) 
+  
+  #Parse the data to get the data we want to retrieve 
+  parsed <-fromJSON(rawToChar(data$content))
+  
+  #Tranform the data into data frame
+  parsed <- as.data.frame(t(unlist(parsed)))
   return(parsed)
 }
+#Test if the function works
 ConstructURL(stocksTicker = "AApl",date = "2021/10/29")
-
-
-
-
 
 ```
 
+`query`   
+
+This function is for interacting with the Ticker endpoint.
+
 Function 2 : Interacting with Ticker Endpoint
-```{r}
+```{r, echo=TRUE, eval=TRUE}
 library(tidyverse)
 library(httr)
 library(jsonlite)
-library(plyr)
 
 query<-function(endpoints,type_of_market,limits,stocktype,abbreviation){
   baseUrl="https://api.polygon.io/v3/reference/"
@@ -97,12 +107,43 @@ query("tickers","stocks",1000,"Common Stock",FALSE)
 
 ```
 
+
+`func3`  
+
+This function is used for interacting with the Dividend endpoint.
 Function 3 : Interacting with Dividend Endpoint
+
+
 ```{r}
 func3<- GET("https://api.polygon.io/v3/reference/dividends?&limit=1000&apiKey=Ha9q45MxKhMXoq7bPseOEPNpQ7XBpLoh")
 dividend<- fromJSON(rawToChar(func3$content))
 dividend$results
 ```
+
+Function Call for exploratory analysis
+```{r}
+#Pull data from API for several stockStickers and a specific period of time.
+
+stockSticker_call <- c("aapl","axP","AAL")
+date_call <- c("10/11/2021","10/12/2021","10/13/2021","10/14/2021","10/15/2021",
+          "10-18-2021","10-19-2021","10-20-2021","10-21-2021","10-22-2021")
+count = 0
+data_pull <- ConstructURL("aapl","10/11/2021")
+for (i in stockSticker_call){
+    for (j in date_call){
+      data_call <- ConstructURL(i,j)
+      data_pull <- rbind(data_pull,data_call)
+      count = count + 1
+      if (count == 4) {
+        count = 0
+        Sys.sleep(61)
+      }
+  }
+}
+data_pull = data_pull[-1, ]
+```
+
+
 This is the code to render the README file.
 ```{r, eval = FALSE}
 library(rmarkdown)
