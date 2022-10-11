@@ -31,9 +31,11 @@ This function is for interacting with the `Daily Open/Close` endpoint for the Fi
 For the `adjusted`, it means whether or not the results are adjusted for splits. Here, the default will be the results are adjusted, but user can self define it as well.  
 
 ```{r, eval=TRUE,echo=TRUE}
+#Load the library needed for the function
 library(tidyverse)
 library(httr)
 library(jsonlite)
+
 #Example for getting the data we want.
 Mydata <- GET("https://api.polygon.io/v1/open-close/AAPL/2020-10-14?adjusted=true&apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
 parsed <- fromJSON(rawToChar(Mydata$content))
@@ -71,7 +73,7 @@ ConstructURL(stocksTicker = "AApl",date = "2021/10/29")
 
 `query`   
 
-This function is for interacting with the Ticker endpoint.
+This function is for interacting with the Tickers endpoint. It can be used to query all ticker symbols which are supported by this Financial API. This currently includes Stocks/Equities, Crypto, and Forex.  
 
 Function 2 : Interacting with Ticker Endpoint
 ```{r, echo=TRUE, eval=TRUE}
@@ -120,15 +122,27 @@ dividend<- fromJSON(rawToChar(func3$content))
 dividend$results
 ```
 
-Function Call for exploratory analysis
+Function Call for exploratory data analysis. In this part, I pulled the open,close and afterhours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
+
+
 ```{r}
 #Pull data from API for several stockStickers and a specific period of time.
 
+
+#Set the stockSticker for query
 stockSticker_call <- c("aapl","axP","AAL")
+
+#Set the time frame for query
 date_call <- c("10/11/2021","10/12/2021","10/13/2021","10/14/2021","10/15/2021",
           "10-18-2021","10-19-2021","10-20-2021","10-21-2021","10-22-2021")
+
+#Define count number for setting system sleep time because of the limits of API query.
 count = 0
+
+#Call the ConstructURL once to set a data frame
 data_pull <- ConstructURL("aapl","10/11/2021")
+
+#Conduct a nested loop for querying data I need
 for (i in stockSticker_call){
     for (j in date_call){
       data_call <- ConstructURL(i,j)
@@ -140,6 +154,8 @@ for (i in stockSticker_call){
       }
   }
 }
+
+#Delete the first row and keep what we need
 data_pull = data_pull[-1, ]
 ```
 
