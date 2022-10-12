@@ -162,7 +162,8 @@ Exchange("tickers","XNYS",1000,TRUE)
 
 ## Dividend
 
-
+The Dividend function uses the dividends endpoint and help the user to get the list of companies who have declared a dividend on a given date and after that date. To extract the data the user to enter a date. User has been given the flexibility to enter the date in four formats.
+We have used format() and as.Date() function to get the date into a format that is similar to date in data frame.
 
 ```{r}
 Dividend<-function(endpoints,declaration_date){
