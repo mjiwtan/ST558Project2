@@ -19,7 +19,7 @@ To use the functions for interacting with the Financial API, here are some packa
 - `httr`: Used for load the data we need from API  
 
 # API Interaction Functions  
-Here is the part for the self-defined functions to interact with the Financial API, as well as some helper functions.  
+Below are the part for the self-defined functions to interact with the Financial API, as well as some helper functions.  
 
 ## ConstructURL
 
@@ -182,11 +182,12 @@ Dividend<-function(endpoints,declaration_date){
 Dividend("dividends","07-07-2022")
 
 ```
+
 # Exploratory Data Analysis  
 
 ## Data query
 
-Below is the part of function call for exploratory data analysis. In this part, I pulled the open,close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
+Below is the part of function call for exploratory data analysis. In this part, I made 30 function calls to pull the open, close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
 
 
 ```{r}
@@ -245,6 +246,7 @@ This part is for creating numerical summaries for some quantitative variables at
  a <- data_pull %>%
         group_by(symbol)%>%
          summarise(mean_volume = mean(as.numeric(volume)))
+a
 ```
 
 In this part, the above data with new variables created is utilized to create contingency table. The table displays the frequency of the stock price status for each stock ticker.
@@ -316,12 +318,12 @@ g + geom_boxplot(fill = "green")+ geom_point(aes(color = symbol),position = "jit
 
 ```
   
-According to the boxplot above, the close price 
+According to the boxplot above, the close price for AXP is the lowest. Also, it has lowest variance. On the other hand, AAPL has highet close price, also with largest variance.  
 
 
 This is the code to render the README file.
 ```{r, eval = FALSE}
 library(rmarkdown)
-rmarkdown::render(input = "ST558_update_check.Rmd",
+rmarkdown::render(input = "ST558_Project_2.Rmd",
                   output_file = "README.md")
 ```
