@@ -124,6 +124,7 @@ targetUrl<-paste(baseUrl, endpoint, "?", "type", "=", type,"&limit=",limit,"&api
 tickerData <- GET(targetUrl)
 parsedTickerData <- fromJSON(rawToChar(tickerData$content))
 parsedTickerData$results$currency_name<-toupper(parsedTickerData$results$currency_name)
+parsedTickerData$results <- within(parsedTickerData$results, primary_exchange[market == "otc"] <- "Not listed")
 return(parsedTickerData$results)
 }
 Type_of_Stock("tickers","Common Stock",1000,FALSE)  
@@ -187,6 +188,7 @@ Dividend("dividends","07-07-2022")
 
 ## Data query
 
+First Function Call:
 Below is the part of function call for exploratory data analysis. In this part, I made 30 function calls to pull the open, close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
 
 
@@ -224,10 +226,17 @@ for (i in stockticker_call){
 data_pull = data_pull[-1, ]
 ```
 
+Second Function Call:
+
+This function will extract information about companies which offer common stocks across different markets and exchanges
+
+```{r}
+stockdata<-Type_of_Stock("tickers","Common Stock",1000,FALSE)
+```
 
 ## Data Manipulation  
 
-Below is part for create new variables. Here, I create a new variable change that records the change price of the stockticker from open time to close time. Also a new categorical variable 'summary'is created, it indicates if the stock price rises or declines.If the `change` variable is greater than 0, indicates the stockprice rises at that specific date, vice versa.If `change` = 0, indicates the stock price remain the same for that day.
+Below is part for create new variables. Here, I create a new variable change that records the change price of the stockticker from open time to close time. Also a new categorical variable 'summary'is created, it indicates if the stock price rises or declines.If the `change` variable is greater than 0, indicates the stock price rises at that specific date, vice versa.If `change` = 0, indicates the stock price remain the same for that day.
 
 ```{r echo=TRUE, eval=TRUE}
 data_pull <- tibble(data_pull)
@@ -238,6 +247,8 @@ newdata <- data_pull %>% mutate(change = as.numeric(close) - as.numeric(open),
                                                  ifelse(change < 0, "decline", "same")))
 newdata
 ```
+
+
 
 This part is for creating numerical summaries for some quantitative variables at each setting of the categorical variables  .
 
@@ -256,6 +267,17 @@ table(newdata$summary,newdata$symbol)
 ```
 
 According to the table generated, in the specific time period(Includes the week of 10/11/2021 and the week of 10/18/2021), the stock price for AAL declines for 7 days and rises for 3 days. The stock price for AAPL declines for 3 days and rises for 7 days. The stock price for AXP declines for 4 days and rises for 6 days.  
+
+
+Created a second contingency table of the primary exchange for a particular type of market having common stocks.
+```{r}
+stockdata$market <- as.factor(stockdata$market)
+stockdata$primary_exchange <- as.factor(stockdata$primary_exchange)
+marker_exchange <- table(stockdata$market, stockdata$primary_exchange)
+marker_exchange
+```
+
+The table shows there are 20 stocks listed on XASE exchange, 373 on XNAS and 197 on XNYS exchange, OTC stock are not listed and there are 410 OTC stocks in the list demanded by the user based on Common Stock.
 
 ## Graphs
 
@@ -307,7 +329,7 @@ g + geom_point()+labs(x = "Date", y = "Close price ", color ="Stock ticker")+
 
 According to the boxplot above, AAL has lowest stock price, then AAPL, and AXP have the largest closing price. Also, AXP and AAPL shows a slightly upward change in the scatter plot.  
 
-### Extra boxplot  
+### Extra boxplot 
 
 ```{r, echo=TRUE, eval=TRUE}
 g <- ggplot(newdata,aes(symbol,as.numeric(volume)))
@@ -318,8 +340,16 @@ g + geom_boxplot(fill = "green")+ geom_point(aes(color = symbol),position = "jit
 
 ```
   
-According to the boxplot above, the close price for AXP is the lowest. Also, it has lowest variance. On the other hand, AAPL has highet close price, also with largest variance.  
+According to the boxplot above, the close price for AXP is the lowest. Also, it has lowest variance. On the other hand, AAPL has highest close price, also with largest variance.  
 
+### Extra barplot
+
+```{r}
+data_1<- stockdata %>% count(primary_exchange)
+barplot <- ggplot(data = data_1, aes(primary_exchange, n)) + labs(y = "stock_count") + geom_bar(stat = "identity", fill = "red")
+barplot
+```
+This barplot shows that the XASE exchange has the lowest number os Common stocks listed on it, while XNAS has the highest number of stock listed. It also shows that a large number of common stocks are not listed and are traded over the counter
 
 This is the code to render the README file.
 ```{r, eval = FALSE}
