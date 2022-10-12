@@ -324,9 +324,9 @@ table(newdata$summary,newdata$symbol)
 ```
 
     ##          
-    ##           AAPL AXP
-    ##   decline    1   1
-    ##   rise       1   1
+    ##           AAL AAPL AXP
+    ##   decline   7    3   4
+    ##   rise      3    7   6
 
 According to the table generated, in the specific time period(Includes
 the week of 10/11/2021 and the week of 10/18/2021), the stock price for
@@ -366,14 +366,20 @@ for it below the graph.
 newdata
 ```
 
-    ## # A tibble: 4 × 12
-    ##   status from   symbol open  high  low   close volume after…¹ preMa…² change summary
-    ##   <chr>  <chr>  <chr>  <chr> <chr> <chr> <chr> <chr>  <chr>   <chr>    <dbl> <chr>  
-    ## 1 OK     2021-… AAPL   142.… 144.… 141.… 142.… 63952… 142.59  142.05   0.540 rise   
-    ## 2 OK     2021-… AAPL   143.… 143.… 141.… 141.… 73035… 139.63  142.3   -1.72  decline
-    ## 3 OK     2021-… AXP    175.… 176.… 173.… 173.… 24959… 173     174.05  -2.33  decline
-    ## 4 OK     2021-… AXP    173.… 176.… 173.1 174.… 30695… 174.4   173.44   1.30  rise   
-    ## # … with abbreviated variable names ¹​afterHours, ²​preMarket
+    ## # A tibble: 30 × 12
+    ##    status from  symbol open  high  low   close volume after…¹ preMa…² change summary
+    ##    <chr>  <chr> <chr>  <chr> <chr> <chr> <chr> <chr>  <chr>   <chr>    <dbl> <chr>  
+    ##  1 OK     2021… AAPL   142.… 144.… 141.… 142.… 63952… 142.59  142.05   0.540 rise   
+    ##  2 OK     2021… AAPL   143.… 143.… 141.… 141.… 73035… 139.63  142.3   -1.72  decline
+    ##  3 OK     2021… AAPL   141.… 141.4 139.2 140.… 78762… 141.24  140.2   -0.325 decline
+    ##  4 OK     2021… AAPL   142.… 143.… 141.… 143.… 69891… 143.94  141.71   1.65  rise   
+    ##  5 OK     2021… AAPL   143.… 144.… 143.… 144.… 67642… 144.95  143.91   1.07  rise   
+    ##  6 OK     2021… AAPL   143.… 146.… 143.… 146.… 85389… 146.79  144.39   3.11  rise   
+    ##  7 OK     2021… AAPL   147.… 149.… 146.… 148.… 76378… 148.6   146.79   1.75  rise   
+    ##  8 OK     2021… AAPL   148.7 149.… 148.… 149.… 58418… 148.88  148.58   0.560 rise   
+    ##  9 OK     2021… AAPL   148.… 149.… 147.… 149.… 61345… 149.15  148.92   0.670 rise   
+    ## 10 OK     2021… AAPL   149.… 150.… 148.… 148.… 58855… 148.46  149.23  -1     decline
+    ## # … with 20 more rows, and abbreviated variable names ¹​afterHours, ²​preMarket
 
 ``` r
 g <- ggplot(data = newdata, aes(x = summary))
@@ -382,7 +388,7 @@ g + geom_bar(aes(fill = symbol), position = "dodge")+
   ggtitle("Barplot for the summary for different stock ticker")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 Above is the barplot for summarising the `summary` variable in the
 dataset, it shows the frequency count for rise and decline of each stock
@@ -398,7 +404,7 @@ ggplot(newdata,aes(x = as.numeric(afterHours),fill = symbol))+
   ggtitle("Histogram for Afterhours price for different stock tickers")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 According to the histogram above, the after-hour stock price for AAL is
 most around 19 to 20.5, and the after-hour stock price for AAPL is most
@@ -415,7 +421,7 @@ g + geom_boxplot(fill = "orange")+
   ggtitle("Boxplot for stock price change for specific stock ticker")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
 According to the boxplot above, the stock price change is more stable
 for AAL, the price change for AXP shows bigger variance. Also, it seems
@@ -433,7 +439,7 @@ g + geom_point()+labs(x = "Date", y = "Close price ", color ="Stock ticker")+
   theme(axis.text.x = element_text(angle = 90))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
 
 According to the boxplot above, AAL has lowest stock price, then AAPL,
 and AXP have the largest closing price. Also, AXP and AAPL shows a
@@ -448,7 +454,7 @@ g + geom_boxplot(fill = "green")+ geom_point(aes(color = symbol),position = "jit
   ggtitle("Figure for volume for specific stock ticker")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 According to the boxplot above, the close price for AXP is the lowest.
 Also, it has lowest variance. On the other hand, AAPL has highest close
@@ -462,7 +468,7 @@ barplot <- ggplot(data = data_1, aes(primary_exchange, n)) + labs(y = "stock_cou
 barplot
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- --> This barplot
+![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- --> This barplot
 shows that the XASE exchange has the lowest number os Common stocks
 listed on it, while XNAS has the highest number of stock listed. It also
 shows that a large number of common stocks are not listed and are traded
