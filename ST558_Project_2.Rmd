@@ -1,8 +1,8 @@
 ---
-title: "ST558 Project 2  Interacting with APIs: Example with the Financial API"
+title: 'ST558 Project 2  Interacting with APIs: Example with the Financial API'
 author: "Xi Zeng, Madhur Jiwtani"
 date: "2022-10-06"
-output: github_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -19,34 +19,37 @@ To use the functions for interacting with the Financial API, here are some packa
 - `httr`: Used for load the data we need from API  
 
 # API Interaction Functions  
-Below are the part for the self-defined functions to interact with the Financial API, as well as some helper functions.  
+Below are the part for the self-defined functions to interact with the Financial API, as well as some instructions for the helper functions.  
 
 ## ConstructURL
 
-This function is for interacting with the `Daily Open/Close` endpoint for the Financial API to acquire open,close and after hours prices of a stock symbol on a certain date. For this function, user can specify the stockticker; lowercase, uppercase and camelcase.etc are accepted). Also, for date, we accept following formats:  
-+`%m/%d/%Y`  
-+`%m-%d-%Y`  
-+`%Y/%m/%d`  
-+`%Y-%m-%d`  
-For the `adjusted`, it means whether or not the results are adjusted for splits. Here, the default will be the results are adjusted, but user can self define it as well.  
+This function is for interacting with the `Daily Open/Close` endpoint for the Financial API to acquire open,close and after hours prices of a stock symbol on a certain date. For this function, user can specify the stock ticker. It has to be accurate sticker letters, but case does not matter in the input. Also, for date, we accept following formats:  
++ `%m/%d/%Y`  
++ `%m-%d-%Y`  
++ `%Y/%m/%d`  
++ `%Y-%m-%d`  
+For the input variable`adjusted`, it means whether or not the results are adjusted for splits. Here, the default will be the results are adjusted, but user can self define it as well.  
 
-```{r, eval=TRUE,echo=TRUE}
+```{r, eval=TRUE,echo=TRUE, message=FALSE, warning=FALSE}
 #Load the library needed for the function
 library(tidyverse)
 library(httr)
 library(jsonlite)
+library(shiny)
+#rm(list = ls())
 
 #Example for getting the data we want.
-Mydata <- GET("https://api.polygon.io/v1/open-close/AAPL/2020-10-14?adjusted=true&apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
-parsed <- fromJSON(rawToChar(Mydata$content))
+#Mydata <- GET("https://api.polygon.io/v1/open-close/AAPL/2020-10-14?adjusted=true&apiKey=pxkABpfvwGyIl55tOWtNxricS6IwKFYH")
+#parsed <- fromJSON(rawToChar(Mydata$content))
 
 #Construct API
 ConstructURL <- function(stockticker, date, adjusted = "true"){
   BasicURL <- "https://api.polygon.io/v1/open-close"
   apikey <- "pxkABpfvwGyIl55tOWtNxricS6IwKFYH"
-  #Transform the stockticker to the upper 
+  #Transform the stockticker to the upper case
   newstockticker <- toupper(stockticker)
-  #newstockticker <- paste(toupper(substr(strsplit(stockticker, " ")[[1]],1,1)),collapse = "")
+  
+  #Transform the adjusted to lower case
   newadjusted <- tolower(adjusted)
   
   #Transform date to YY-MM-DD format
@@ -67,15 +70,15 @@ ConstructURL <- function(stockticker, date, adjusted = "true"){
   return(parsed)
 }
 #Test if the function works
-ConstructURL(stockticker = "AApl",date = "2021/10/29")
+#ConstructURL(stockticker = "AApl",date = "2021/10/29")
 
 ```
 
 ## Market  
 
-This function is for interacting with the Tickers endpoint. It can be used to query all the different type of market like "Stocks", "Crypto", "FX" and "OTC" which are supported by this Financial API. The columns of data the user will be getting will be different for each market type 
+This function is for interacting with the Tickers endpoint. It can be used to query all the different type of market like "Stocks", "Crypto", "FX" and "OTC" which are supported by this Financial API. The columns of data the user will be getting will be different for each market type.   
 
-```{r, echo=TRUE, eval=TRUE}
+```{r, echo=TRUE, eval=TRUE, message=FALSE,warning=FALSE}
 library(tidyverse)
 library(httr)
 library(jsonlite)
@@ -94,7 +97,7 @@ parsedTickerData$results$currency_name<-toupper(parsedTickerData$results$currenc
 return(parsedTickerData$results)
 
 }
-Market("tickers","fx",1000)
+#Market("tickers","fx",1000)
 
 ```
 
@@ -127,12 +130,12 @@ parsedTickerData$results$currency_name<-toupper(parsedTickerData$results$currenc
 parsedTickerData$results <- within(parsedTickerData$results, primary_exchange[market == "otc"] <- "Not listed")
 return(parsedTickerData$results)
 }
-Type_of_Stock("tickers","Common Stock",1000,FALSE)  
+#Type_of_Stock("tickers","Common Stock",1000,FALSE)  
 ```
 
 ## Exchange
 
-This function is helpful in identifying the stocks and their information  listed on a certain exchange. We have used the exchange API to map the exchange symbol with their name so that user gets the option to enter the full name of the exchange if they don't have the idea of the code for a particular exchange. Here we have used Ticker endpoint.
+This function is helpful in identifying the stocks and their information listed on a certain exchange. We have used the exchange API to map the exchange symbol with their name so that user gets the option to enter the full name of the exchange if they don't have the idea of the code for a particular exchange. Here we have used Ticker endpoint.
 
 ```{r}
 Exchange<-function(endpoints,exchange,limits,abbreviation){
@@ -158,13 +161,20 @@ parsedTickerData <- fromJSON(rawToChar(tickerData$content))
 parsedTickerData$results$currency_name<-toupper(parsedTickerData$results$currency_name)
 return(parsedTickerData$results)
 }
-Exchange("tickers","XNYS",1000,TRUE)  
+#Sample for function call using Exchange function
+#Exchange("tickers","XNYS",1000,TRUE)  
 ```
 
-## Dividend
+## Dividend  
 
-The Dividend function uses the dividends endpoint and help the user to get the list of companies who have declared a dividend on a given date and after that date. To extract the data the user to enter a date. User has been given the flexibility to enter the date in four formats.
-We have used format() and as.Date() function to get the date into a format that is similar to date in data frame.
+The Dividend function uses the dividends endpoint and help the user to get the list of companies who have declared a dividend on a given date and after that date. To extract the data the user to enter a date. User has been given the flexibility to enter the date in four formats:
+
++ `%m/%d/%Y`  
++ `%m-%d-%Y`  
++ `%Y/%m/%d`  
++ `%Y-%m-%d`  
+
+We have used format() and as.Date() function to get the date into a format that is similar to date in data frame.  
 
 ```{r}
 Dividend<-function(endpoints,declaration_date){
@@ -180,28 +190,30 @@ Dividend<-function(endpoints,declaration_date){
   answer<-dividendDetail$results%>%select("ticker","frequency","currency","pay_date")
   return(answer)
 }
-Dividend("dividends","07-07-2022")
+
+#Sample for function call using Dividend function
+#Dividend("dividends","07-07-2022")
 
 ```
 
 # Exploratory Data Analysis  
 
-## Data query
+## Data query  
 
-First Function Call:
-Below is the part of function call for exploratory data analysis. In this part, I made 30 function calls to pull the open, close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).  
+First Function Call:  
 
+Below is the part of function call for exploratory data analysis. In this part, 30 function calls was made to pull the open, close and after hours prices of several stocks(AAPL,AXP and AAL) between certain date(10/11/2021 - 10/22/2021).Also, the data for these calls are combined, the return object for the function will be a well-formatted data frame.  
 
 ```{r}
 #Pull data from API for several stocktickers and a specific period of time.
-
 
 #Set the stockticker for query
 stockticker_call <- c("aapl","axP","AAL")
 
 #Set the time frame for query
-date_call <- c("10/11/2021","10/12/2021","10/13/2021","10/14/2021","10/15/2021",
-          "10-18-2021","10-19-2021","10-20-2021","10-21-2021","10-22-2021")
+date_call <- c("10/11/2021","10/12/2021","10/13/2021",
+               "10/14/2021","10/15/2021","10-18-2021",
+               "10-19-2021","10-20-2021","10-21-2021","10-22-2021")
 
 #Define count number for setting system sleep time because of the limits of API query.
 count = 0
@@ -209,8 +221,8 @@ count = 0
 #Call the ConstructURL once to set a data frame
 data_pull <- ConstructURL("aapl","10/11/2021")
 
-#Conduct a nested loop for querying data I need
-for (i in stockticker_call){
+#Conduct a nested loop for querying data
+  for (i in stockticker_call){
     for (j in date_call){
       data_call <- ConstructURL(i,j)
       data_pull <- rbind(data_pull,data_call)
@@ -219,16 +231,17 @@ for (i in stockticker_call){
         count = 0
         Sys.sleep(61)
       }
+    }
   }
-}
+
 
 #Delete the first row and keep what we need
 data_pull = data_pull[-1, ]
 ```
 
-Second Function Call:
+Second Function Call:  
 
-This function will extract information about companies which offer common stocks across different markets and exchanges
+This function will extract information about companies which offer common stocks across different markets and exchanges.  
 
 ```{r}
 stockdata<-Type_of_Stock("tickers","Common Stock",1000,FALSE)
@@ -236,9 +249,9 @@ stockdata<-Type_of_Stock("tickers","Common Stock",1000,FALSE)
 
 ## Data Manipulation  
 
-Below is part for create new variables. Here, I create a new variable change that records the change price of the stockticker from open time to close time. Also a new categorical variable 'summary'is created, it indicates if the stock price rises or declines.If the `change` variable is greater than 0, indicates the stock price rises at that specific date, vice versa.If `change` = 0, indicates the stock price remain the same for that day.
+Below is part for create new variables. Here,  a new variable change is created which records the change price of the stock ticker from open time to close time. Also a new categorical variable 'summary'is created, it indicates if the stock price rises or declines at the date. If the `change` variable is greater than 0, indicates the stock price rises at that specific date, vice versa. If `change` is equal to 0, then it indicates that the stock price remain the same for that day.
 
-```{r echo=TRUE, eval=TRUE}
+```{r echo=TRUE, eval=FALSE}
 data_pull <- tibble(data_pull)
 
 #Create a new variable change as well as a categorical variable summary 
@@ -250,17 +263,17 @@ newdata
 
 
 
-This part is for creating numerical summaries for some quantitative variables at each setting of the categorical variables  .
+This part is for creating a new variable named `mean_volume`, which summarizes the mean value of `volume` given the specified two-week period for the three "AAL", "AAPL","AXP" tickers.  
 
 ```{r echo=TRUE,eval=TRUE}
-#In this part, the mean volume for each stockticker is summarised
+#In this part, the mean volume for each stock ticker is summarized
  a <- data_pull %>%
         group_by(symbol)%>%
          summarise(mean_volume = mean(as.numeric(volume)))
 a
 ```
 
-In this part, the above data with new variables created is utilized to create contingency table. The table displays the frequency of the stock price status for each stock ticker.
+In this part, the above data with new variables created is utilized to create contingency table. The table displays the frequency of the stock price status(rise or decline) for each stock ticker.
 
 ```{r echo=TRUE,eval=TRUE}
 table(newdata$summary,newdata$symbol)
@@ -269,7 +282,9 @@ table(newdata$summary,newdata$symbol)
 According to the table generated, in the specific time period(Includes the week of 10/11/2021 and the week of 10/18/2021), the stock price for AAL declines for 7 days and rises for 3 days. The stock price for AAPL declines for 3 days and rises for 7 days. The stock price for AXP declines for 4 days and rises for 6 days.  
 
 
-Created a second contingency table of the primary exchange for a particular type of market having common stocks.
+A second frequency table is created by the data pulled from the Tickers endpoint. The table shows the frequency count of the primary exchange for a particular type of market having common stocks.  
+
+
 ```{r}
 stockdata$market <- as.factor(stockdata$market)
 stockdata$primary_exchange <- as.factor(stockdata$primary_exchange)
@@ -279,11 +294,11 @@ marker_exchange
 
 The table shows there are 20 stocks listed on XASE exchange, 373 on XNAS and 197 on XNYS exchange, OTC stock are not listed and there are 410 OTC stocks in the list demanded by the user based on Common Stock.
 
-## Graphs
+## Graphs  
 
-In this part, we are going to generate multiple graphs for exploratory analysis of the data. And each graph will contains the interpretation for it below the graph.
+In this part, we are going to generate multiple graphs for exploratory analysis of the data. And each graph will contains the interpretation for it below the graph.  
 
-### Barplot
+### Barplot  
 
 ```{r, echo=TRUE, eval=TRUE}
 newdata
@@ -355,5 +370,6 @@ This is the code to render the README file.
 ```{r, eval = FALSE}
 library(rmarkdown)
 rmarkdown::render(input = "ST558_Project_2.Rmd",
+                  output_format = "github_document",
                   output_file = "README.md")
 ```
