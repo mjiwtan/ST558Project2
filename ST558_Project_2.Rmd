@@ -366,10 +366,6 @@ barplot
 ```
 This barplot shows that the XASE exchange has the lowest number os Common stocks listed on it, while XNAS has the highest number of stock listed. It also shows that a large number of common stocks are not listed and are traded over the counter
 
-This is the code to render the README file.
-```{r, eval = FALSE}
-library(rmarkdown)
-rmarkdown::render(input = "ST558_Project_2.Rmd",
-                  output_format = "github_document",
-                  output_file = "README.md")
-```
+
+
+
